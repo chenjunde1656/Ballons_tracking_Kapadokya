@@ -1,0 +1,33 @@
+name: Cappadocia Flight Monitor
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # 每 10 分鐘跑一次
+  workflow_dispatch:        # 允許手動點擊執行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run monitor
+        run: python monitor.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add flight_events.log
+          git commit -m "Update flight status [skip ci]" || exit 0
+          git push
