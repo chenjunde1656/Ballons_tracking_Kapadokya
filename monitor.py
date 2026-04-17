@@ -12,19 +12,36 @@ TR_TZ = pytz.timezone('Europe/Istanbul')
 def get_current_status():
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Referer": "https://www.google.com/"
+        "Accept-Language": "en-US,en;q=0.9"
     }
     try:
-        # 加上隨機參數避免快取
         response = requests.get(f"{URL}?t={datetime.now().timestamp()}", headers=headers, timeout=20)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
-            # 根據 SHM 官網結構定位燈號元素
-            status_box = soup.select_one(".slot-status, #slot-status, .status-info")
-            return status_box.get_text(strip=True) if status_box else "Unknown"
-        return f"Error_{response.status_code}"
+            
+            # --- 診斷邏輯：嘗試多種可能的 Selector ---
+            # 1. 直接找包含狀態的 div
+            status_element = soup.select_one(".slot-status, .status-info, .slot-info b")
+            
+            if status_element:
+                status_text = status_element.get_text(strip=True)
+                return status_text
+            
+            # 2. 如果找不到文字，檢查是否是透過圖片 (例如 flag_green.png)
+            img_element = soup.find("img", class_="flag") # 假設 class 是 flag
+            if img_element and 'src' in img_element.attrs:
+                src = img_element['src'].lower()
+                if 'green' in src: return "FLY (Green)"
+                if 'yellow' in src: return "WAIT (Yellow)"
+                if 'red' in src: return "CANCEL (Red)"
+            
+            # 3. 如果還是 Unknown，印出網頁 Title 幫助除錯
+            title = soup.title.string if soup.title else "No Title"
+            return f"Unknown (Title: {title})"
+            
+        return f"HTTP_Error_{response.status_code}"
     except Exception as e:
-        return f"Exception_{str(e)}"
+        return f"Exception_{str(e)[:50]}"
 
 def run():
     now_tr = datetime.now(TR_TZ).strftime("%Y-%m-%d %H:%M:%S")
