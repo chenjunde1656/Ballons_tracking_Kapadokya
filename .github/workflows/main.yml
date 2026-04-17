@@ -2,18 +2,22 @@ name: Cappadocia Flight Monitor
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # 每 10 分鐘跑一次
+    - cron: '*/5 * * * *'  # 每 5 分鐘跑一次
   workflow_dispatch:        # 允許手動點擊執行
+
+# 加入環境變數，提早選入 Node.js 24 模式
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # 升級到 v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # 升級到 v5
         with:
           python-version: '3.9'
 
