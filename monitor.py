@@ -46,21 +46,29 @@ def run():
     now_tr = datetime.now(TR_TZ).strftime("%Y-%m-%d %H:%M:%S")
     current_status = get_current_status()
     
-    # 讀取最後一次記錄
+    # 1. 讀取最後紀錄
     last_status = ""
     if os.path.exists(LOG_FILE):
         with open(LOG_FILE, "r", encoding="utf-8") as f:
             lines = f.readlines()
             if lines:
-                last_status = lines[-1].split("] ")[-1].strip()
+                # 取得最後一行的狀態文字
+                last_line = lines[-1].strip()
+                if "] " in last_line:
+                    last_status = last_line.split("] ")[-1]
 
-    # 如果狀態變更，寫入紀錄
+    # 2. 寫入邏輯：狀態改變才記錄，或者我們強迫它記錄「今日首航檢查」
     if current_status != last_status:
         with open(LOG_FILE, "a", encoding="utf-8") as f:
             f.write(f"[{now_tr}] {current_status}\n")
         print(f"Status changed to: {current_status}")
     else:
-        print("No status change.")
+        # 即使沒變動，我們也在 Console 輸出，證明它有跑
+        print(f"Checked at {now_tr}: Status remains {current_status}")
+        
+    # 3. (選修) 另外寫一個檔案記錄「最後巡檢時間」，讓你安心
+    with open("last_check.txt", "w") as f:
+        f.write(f"Last heartbeat check: {now_tr} | Status: {current_status}")
 
 if __name__ == "__main__":
     run()
