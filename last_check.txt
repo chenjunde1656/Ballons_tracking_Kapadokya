@@ -1,1 +1,1 @@
-Last heartbeat check: 2026-07-28 11:03:28 | Status: HTTP_Error_500
+Last heartbeat check: 2026-07-28 13:43:27 | Status: Exception_HTTPSConnectionPool(host='shmkapadokya.kapadokya.e
