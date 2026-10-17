@@ -1,1 +1,1 @@
-Last heartbeat check: 2026-10-17 06:33:09 | Status: Exception_HTTPSConnectionPool(host='shmkapadokya.kapadokya.e
+Last heartbeat check: 2026-10-17 11:00:48 | Status: CANCEL (Red)
